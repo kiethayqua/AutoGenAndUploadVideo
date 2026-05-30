@@ -14,12 +14,14 @@ class TikTokCliPublisher:
     def __init__(self, config: AppConfig):
         self.config = config
 
-    def publish(self, *, username: str, video_path: Path, title: str) -> str:
+    def publish(self, *, username: str, video_path: Path, title: str, proxy: str = "") -> str:
         if not username:
             raise TikTokCliError("TikTok username is required when publishing")
         if not video_path.exists():
             raise TikTokCliError(f"Video does not exist: {video_path}")
         cmd = ["python3", "cli.py", "upload", "-u", username, "-v", str(video_path), "-t", title]
+        if proxy:
+            cmd.extend(["-p", proxy])
         proc = subprocess.run(
             cmd,
             cwd=self.config.tiktok_repo,

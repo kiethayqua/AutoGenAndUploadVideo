@@ -99,6 +99,30 @@ PYTHONPATH=. python3 -m auto_tiktok_orchestrator.cli generate \
   --tiktok-username "your_username"
 ```
 
+To publish through an upload proxy, add `--tiktok-proxy`. The value is forwarded to TiktokAutoUploader's `-p/--proxy` option:
+
+```bash
+PYTHONPATH=. python3 -m auto_tiktok_orchestrator.cli generate \
+  --idea "A short motivational video about building discipline" \
+  --custom-hashtag "#mybrand" \
+  --publish \
+  --tiktok-username "your_username" \
+  --tiktok-proxy "http://proxy.example:8080"
+```
+
+The same proxy option also works with daily generation:
+
+```bash
+PYTHONPATH=. python3 -m auto_tiktok_orchestrator.cli daily \
+  --theme "daily productivity and self improvement videos" \
+  --custom-hashtag "#mybrand" \
+  --publish \
+  --tiktok-username "your_username" \
+  --tiktok-proxy "http://proxy.example:8080"
+```
+
+Proxy support applies to the upload request path. If your proxy provider requires authentication, use the proxy URL format they provide. For consistent account signals, log in from the same network/proxy environment you plan to use for publishing.
+
 ## Best US Posting Times From Vietnam
 
 Vietnam is `UTC+7`. For a US-focused TikTok audience, start with these Vietnam-time posting windows:

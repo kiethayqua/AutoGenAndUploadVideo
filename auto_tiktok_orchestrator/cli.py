@@ -31,6 +31,7 @@ def add_common_run_args(parser: argparse.ArgumentParser) -> None:
     parser.add_argument("--custom-hashtag", action="append", default=[], help="Custom hashtag to force include; repeatable")
     parser.add_argument("--publish", action="store_true", help="Publish to TikTok via TiktokAutoUploader CLI after generation")
     parser.add_argument("--tiktok-username", default="", help="TikTokAutoUploader login username for --publish")
+    parser.add_argument("--tiktok-proxy", default="", help="Optional proxy URL passed to TiktokAutoUploader upload via -p/--proxy")
     parser.add_argument("--allow-duplicate", action="store_true", help="Allow duplicate idea/script generation")
 
 
@@ -45,6 +46,7 @@ def main(argv: list[str] | None = None) -> int:
                 custom_hashtags=args.custom_hashtag,
                 publish=args.publish,
                 tiktok_username=args.tiktok_username,
+                tiktok_proxy=args.tiktok_proxy,
                 allow_duplicate=args.allow_duplicate,
             )
             print_result(result)
@@ -57,6 +59,7 @@ def main(argv: list[str] | None = None) -> int:
                     custom_hashtags=args.custom_hashtag,
                     publish=args.publish,
                     tiktok_username=args.tiktok_username,
+                    tiktok_proxy=args.tiktok_proxy,
                     allow_duplicate=args.allow_duplicate,
                 )
                 print_result(result)

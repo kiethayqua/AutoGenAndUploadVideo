@@ -50,6 +50,7 @@ class AutoVideoPipeline:
         custom_hashtags: list[str],
         publish: bool = False,
         tiktok_username: str = "",
+        tiktok_proxy: str = "",
         allow_duplicate: bool = False,
     ) -> PipelineResult:
         if not allow_duplicate and self.store.has_idea(idea):
@@ -90,7 +91,12 @@ class AutoVideoPipeline:
         error = ""
         if publish:
             try:
-                self.publisher.publish(username=tiktok_username, video_path=video_path, title=metadata.title)
+                self.publisher.publish(
+                    username=tiktok_username,
+                    video_path=video_path,
+                    title=metadata.title,
+                    proxy=tiktok_proxy,
+                )
                 status = "published"
             except Exception as exc:
                 error = str(exc)
