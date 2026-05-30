@@ -1,0 +1,6 @@
+[submodule "MoneyPrinterTurbo"]
+	path = MoneyPrinterTurbo
+	url = https://github.com/kiethayqua/MoneyPrinterTurbo.git
+[submodule "TiktokAutoUploader"]
+	path = TiktokAutoUploader
+	url = https://github.com/kiethayqua/TiktokAutoUploader.git

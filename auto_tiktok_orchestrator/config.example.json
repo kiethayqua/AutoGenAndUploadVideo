@@ -1,0 +1,12 @@
+{
+  "moneyprinter_api_base": "http://127.0.0.1:8080/api/v1",
+  "moneyprinter_runner": "uv run python",
+  "poll_interval_seconds": 10,
+  "task_timeout_seconds": 3600,
+  "caption_limit": 2200,
+  "max_hashtags": 12,
+  "default_video_source": "pexels",
+  "default_video_aspect": "9:16",
+  "default_paragraph_number": 1,
+  "default_video_language": ""
+}
