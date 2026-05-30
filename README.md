@@ -99,6 +99,25 @@ PYTHONPATH=. python3 -m auto_tiktok_orchestrator.cli generate \
   --tiktok-username "your_username"
 ```
 
+## Best US Posting Times From Vietnam
+
+Vietnam is `UTC+7`. For a US-focused TikTok audience, start with these Vietnam-time posting windows:
+
+| Vietnam Time | US Audience Window | Notes |
+| --- | --- | --- |
+| `5:00 AM - 9:00 AM` | US East evening, US West afternoon/evening | Strong primary window |
+| `8:00 AM - 12:00 PM` | US West evening | Good for West Coast reach |
+| `10:00 PM - 1:00 AM` | US lunch / early afternoon | Useful secondary test window |
+
+Recommended starting schedule:
+
+```text
+2 posts/day: 6:30 AM and 10:00 AM Vietnam time
+3 posts/day: 6:30 AM, 10:00 AM, and 11:30 PM Vietnam time
+```
+
+Track results for at least 2 weeks, then keep the slots with the highest US viewer percentage, engagement, and app conversions.
+
 ## Duplicate Prevention
 
 The orchestrator stores generated ideas and script hashes in SQLite. By default it refuses to generate a duplicate idea or duplicate script.
