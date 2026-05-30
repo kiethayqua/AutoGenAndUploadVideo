@@ -123,6 +123,41 @@ PYTHONPATH=. python3 -m auto_tiktok_orchestrator.cli daily \
 
 Proxy support applies to the upload request path. If your proxy provider requires authentication, use the proxy URL format they provide. For consistent account signals, log in from the same network/proxy environment you plan to use for publishing.
 
+### Free US Proxy Notes
+
+Free public proxies are useful only for low-risk testing. Avoid using them for real TikTok login or publishing because the proxy operator may log traffic, steal cookies, disappear without notice, or use IPs already flagged by TikTok. For production posting, prefer a stable trusted residential/mobile proxy.
+
+Common places to look for free US proxies:
+
+- ProxyScrape US list: `https://proxyscrape.com/free-proxy-list/united-states`
+- Proxifly GitHub list: `https://github.com/proxifly/free-proxy-list`
+- Spys.one US list: `https://spys.one/free-proxy-list/US/`
+- FreeProxy.World US filter: `https://www.freeproxy.world/?country=US`
+- ProxyNova list: `https://www.proxynova.com/proxy-server-list/`
+
+Use an `HTTP` or `HTTPS` proxy URL first, because this uploader passes the value to TiktokAutoUploader's upload proxy option:
+
+```text
+http://host:port
+```
+
+Before using a proxy with this tool, test only the public IP and country without sending TikTok credentials:
+
+```bash
+curl -x "http://host:port" https://ipinfo.io/ip
+curl -x "http://host:port" https://ifconfig.me
+```
+
+Then publish with the working proxy:
+
+```bash
+PYTHONPATH=. python3 -m auto_tiktok_orchestrator.cli generate \
+  --idea "Your video idea" \
+  --publish \
+  --tiktok-username "your_username" \
+  --tiktok-proxy "http://host:port"
+```
+
 ## Best US Posting Times From Vietnam
 
 Vietnam is `UTC+7`. For a US-focused TikTok audience, start with these Vietnam-time posting windows:
