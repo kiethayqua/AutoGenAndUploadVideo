@@ -87,9 +87,29 @@ class AutoVideoPipeline:
         )
 
         status = "generated"
+        error = ""
         if publish:
-            self.publisher.publish(username=tiktok_username, video_path=video_path, title=metadata.title)
-            status = "published"
+            try:
+                self.publisher.publish(username=tiktok_username, video_path=video_path, title=metadata.title)
+                status = "published"
+            except Exception as exc:
+                error = str(exc)
+                run_id = self.store.record_run(
+                    idea=idea,
+                    script=script,
+                    script_hash=script_hash,
+                    terms=terms,
+                    video_task_id=task_id,
+                    video_path=video_path,
+                    caption=metadata.caption,
+                    hashtags=metadata.hashtags,
+                    custom_hashtags=custom_hashtags,
+                    status="publish_failed",
+                    error=error,
+                )
+                raise PipelineError(
+                    f"Video generated but TikTok publish failed; run_id={run_id}; video_path={video_path}: {exc}"
+                ) from exc
 
         run_id = self.store.record_run(
             idea=idea,
@@ -102,6 +122,7 @@ class AutoVideoPipeline:
             hashtags=metadata.hashtags,
             custom_hashtags=custom_hashtags,
             status=status,
+            error=error,
         )
         return PipelineResult(
             run_id=run_id,
