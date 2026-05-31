@@ -26,7 +26,8 @@ class AppConfig:
     default_video_source: str = "pexels"
     default_video_aspect: str = "9:16"
     default_paragraph_number: int = 1
-    default_video_language: str = ""
+    default_video_language: str = "English"
+    default_voice_name: str = "en-US-JennyNeural-Female"
 
     @classmethod
     def load(cls, path: str | Path | None = None) -> "AppConfig":

@@ -8,5 +8,6 @@
   "default_video_source": "pexels",
   "default_video_aspect": "9:16",
   "default_paragraph_number": 1,
-  "default_video_language": ""
+  "default_video_language": "English",
+  "default_voice_name": "en-US-JennyNeural-Female"
 }

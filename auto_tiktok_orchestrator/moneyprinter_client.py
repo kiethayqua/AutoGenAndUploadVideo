@@ -53,6 +53,7 @@ class MoneyPrinterClient:
         video_source: str,
         video_aspect: str,
         language: str,
+        voice_name: str,
         paragraph_number: int,
     ) -> str:
         data = self._post(
@@ -64,6 +65,7 @@ class MoneyPrinterClient:
                 "video_aspect": video_aspect,
                 "video_source": video_source,
                 "video_language": language,
+                "voice_name": voice_name,
                 "paragraph_number": paragraph_number,
                 "subtitle_enabled": True,
                 "bgm_type": "random",

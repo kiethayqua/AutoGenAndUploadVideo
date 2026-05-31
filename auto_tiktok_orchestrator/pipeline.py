@@ -73,6 +73,7 @@ class AutoVideoPipeline:
             video_source=self.config.default_video_source,
             video_aspect=self.config.default_video_aspect,
             language=self.config.default_video_language,
+            voice_name=self.config.default_voice_name,
             paragraph_number=self.config.default_paragraph_number,
         )
         task = self.moneyprinter.wait_for_video(task_id)

@@ -44,6 +44,33 @@ http://127.0.0.1:8080/api/v1
 
 Override it with `MONEYPRINTER_API_BASE` or `auto_tiktok_orchestrator/config.example.json`.
 
+## Configure Orchestrator Language and Voice
+
+The orchestrator defaults to English script generation and an English US female voice to avoid MoneyPrinterTurbo's Chinese TTS fallback:
+
+```json
+{
+  "default_video_language": "English",
+  "default_voice_name": "en-US-JennyNeural-Female"
+}
+```
+
+To use another language, copy `auto_tiktok_orchestrator/config.example.json`, edit these fields, then run commands with `--config path/to/config.json`. Example Vietnamese config values:
+
+```json
+{
+  "default_video_language": "Vietnamese",
+  "default_voice_name": "vi-VN-HoaiMyNeural-Female"
+}
+```
+
+Common Edge/Azure voice examples:
+
+- `en-US-JennyNeural-Female` for English US female
+- `en-US-GuyNeural-Male` for English US male
+- `vi-VN-HoaiMyNeural-Female` for Vietnamese female
+- `vi-VN-NamMinhNeural-Male` for Vietnamese male
+
 ## Generate One Video
 
 From the top-level project directory:
