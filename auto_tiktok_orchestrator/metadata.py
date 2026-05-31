@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import json
 import re
 import subprocess
@@ -108,19 +109,36 @@ Rules:
 
 
 def parse_json_object(text: str) -> dict:
-    cleaned = text.strip()
-    if cleaned.startswith("```"):
-        cleaned = re.sub(r"^```(?:json)?\s*|\s*```$", "", cleaned, flags=re.IGNORECASE | re.DOTALL).strip()
-    try:
-        obj = json.loads(cleaned)
-    except json.JSONDecodeError:
-        match = re.search(r"\{.*\}", cleaned, flags=re.DOTALL)
-        if not match:
-            raise MetadataError(f"LLM response did not contain JSON: {text[:500]}")
-        obj = json.loads(match.group(0))
-    if not isinstance(obj, dict):
-        raise MetadataError(f"Expected JSON object, got: {obj!r}")
-    return obj
+    cleaned = strip_json_fence(text.strip())
+    candidates = [cleaned]
+    match = re.search(r"\{.*\}", cleaned, flags=re.DOTALL)
+    if match and match.group(0) != cleaned:
+        candidates.append(match.group(0))
+
+    errors: list[str] = []
+    for candidate in candidates:
+        try:
+            obj = json.loads(candidate)
+        except json.JSONDecodeError as exc:
+            errors.append(str(exc))
+            try:
+                obj = ast.literal_eval(candidate)
+            except (SyntaxError, ValueError) as literal_exc:
+                errors.append(str(literal_exc))
+                continue
+        if not isinstance(obj, dict):
+            raise MetadataError(f"Expected JSON object, got: {obj!r}")
+        return obj
+
+    snippet = cleaned[:500].replace("\n", " ")
+    if not candidates or not cleaned:
+        raise MetadataError("LLM response was empty")
+    raise MetadataError(f"LLM response did not contain a valid JSON object: {snippet}; parse errors: {'; '.join(errors[:3])}")
+
+def strip_json_fence(text: str) -> str:
+    if not text.startswith("```"):
+        return text
+    return re.sub(r"^```(?:json)?\s*|\s*```$", "", text, flags=re.IGNORECASE | re.DOTALL).strip()
 
 
 def merge_hashtags(generated: list[str], custom: list[str], max_hashtags: int) -> list[str]:
