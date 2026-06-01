@@ -89,6 +89,121 @@ This will:
 4. Generate a TikTok caption and hashtags.
 5. Store the run in `auto_tiktok_orchestrator/state/orchestrator.db` to prevent duplicates.
 
+## Agent Mode
+
+Use `agent` mode when you want to give one high-level prompt and let the orchestrator plan the best video settings before generation. The agent can choose a concrete video idea, language, voice, subtitle font settings, background music settings, TikTok account, and upload verification questions.
+
+```bash
+PYTHONPATH=. python3 -m auto_tiktok_orchestrator.cli agent \
+  --prompt "Create a high-retention TikTok teaching one useful English idiom for office workers" \
+  --custom-hashtag "#mybrand"
+```
+
+The command prints the agent's video plan before running the normal generation pipeline. By default, `llm_provider` is `moneyprinter`, so the agent uses the LLM provider configured in `MoneyPrinterTurbo/config.toml`.
+
+### Agent Chat Mode
+
+Use chat mode when you want a Claude Code/Codex-style interactive session where you can type requests, review the agent's plan, answer follow-up confirmations, and keep iterating without restarting the CLI.
+
+```bash
+PYTHONPATH=. python3 -m auto_tiktok_orchestrator.cli chat \
+  --llm-provider claude \
+  --llm-model claude-3-5-haiku-latest \
+  --custom-hashtag "#mybrand"
+```
+
+You can also enter the same chat mode by running `agent` without `--prompt`:
+
+```bash
+PYTHONPATH=. python3 -m auto_tiktok_orchestrator.cli agent
+```
+
+Inside chat, normal text becomes a new video request:
+
+```text
+auto-tiktok> Create a high-retention English idiom video for office workers
+Planning video...
+Agent video plan:
+{ ... }
+Generate this video now? [yes/no]: yes
+Generating video with MoneyPrinterTurbo...
+```
+
+Chat commands:
+
+| Command | Purpose |
+| --- | --- |
+| `/help` | Show available chat commands |
+| `/status` | Show provider, publish, account, and hashtag settings |
+| `/accounts` | List discovered TikTok accounts |
+| `/account <username>` | Set the TikTok account for future turns |
+| `/publish on\|off` | Toggle TikTok publishing for future turns |
+| `/hashtags #a #b` | Replace custom hashtags for future turns |
+| `/exit` | Exit chat |
+
+When publishing is enabled, chat still uses the same TikTok verification gate before upload. The agent shows its plan first, asks whether to generate, then asks the upload verification questions after video generation.
+
+### Agent LLM Providers
+
+You can also connect the agent directly to common LLM providers. API keys are read from environment variables, not config files.
+
+```bash
+export ANTHROPIC_API_KEY="..."
+PYTHONPATH=. python3 -m auto_tiktok_orchestrator.cli agent \
+  --prompt "Make a motivational video for founders" \
+  --llm-provider claude \
+  --llm-model claude-3-5-haiku-latest
+```
+
+```bash
+export OPENAI_API_KEY="..."
+PYTHONPATH=. python3 -m auto_tiktok_orchestrator.cli agent \
+  --prompt "Make a concise productivity tip video" \
+  --llm-provider codex \
+  --llm-model gpt-4o-mini
+```
+
+```bash
+export GEMINI_API_KEY="..."
+PYTHONPATH=. python3 -m auto_tiktok_orchestrator.cli agent \
+  --prompt "Make a travel inspiration short" \
+  --llm-provider gemini \
+  --llm-model gemini-1.5-flash
+```
+
+Supported provider aliases:
+
+| Provider | Aliases | Default key env |
+| --- | --- | --- |
+| MoneyPrinterTurbo config | `moneyprinter` | Uses `MoneyPrinterTurbo/config.toml` |
+| Anthropic Claude | `claude`, `anthropic` | `ANTHROPIC_API_KEY` |
+| OpenAI-compatible / Codex | `codex`, `openai` | `OPENAI_API_KEY` |
+| Gemini | `gemini` | `GEMINI_API_KEY` |
+
+If you use a custom gateway, pass `--llm-api-base`. If your key is in a different environment variable, pass `--llm-api-key-env`. The same fields can be set in `auto_tiktok_orchestrator/config.example.json`.
+
+### Agent Video Styling Defaults
+
+The agent can override these MoneyPrinterTurbo options when planning a video:
+
+- `voice_name`, `voice_rate`, `voice_volume`
+- `bgm_type`, `bgm_file`, `bgm_volume`
+- `font_name`, `font_size`, `text_fore_color`, `text_background_color`
+- `subtitle_position`, `custom_position`, `stroke_color`, `stroke_width`
+
+Set safe defaults in your config file when you want the agent to stay close to a known style:
+
+```json
+{
+  "default_video_language": "English",
+  "default_voice_name": "en-US-JennyNeural-Female",
+  "default_bgm_type": "random",
+  "default_font_size": 60,
+  "default_text_fore_color": "#FFFFFF",
+  "default_stroke_color": "#000000"
+}
+```
+
 ## Daily Unique Generation
 
 ```bash
@@ -124,6 +239,36 @@ PYTHONPATH=. python3 -m auto_tiktok_orchestrator.cli generate \
   --custom-hashtag "#mybrand" \
   --publish \
   --tiktok-username "your_username"
+```
+
+Before uploading, the orchestrator always shows an interactive verification screen with the selected account, generated video path, title, caption, hashtags, and review questions. Publishing only continues after you answer `yes` to every question and confirm the final publish prompt.
+
+Agent mode supports the same upload gate:
+
+```bash
+PYTHONPATH=. python3 -m auto_tiktok_orchestrator.cli agent \
+  --prompt "Create a high-retention TikTok teaching one English idiom" \
+  --publish \
+  --account "your_username"
+```
+
+### Multiple TikTok Accounts
+
+Log in once per TikTok account. Each login creates a cookie file named `TiktokAutoUploader/CookiesDir/tiktok_session-<username>.cookie`.
+
+```bash
+cd TiktokAutoUploader
+python3 cli.py login -n brand_account
+python3 cli.py login -n personal_account
+```
+
+When `--publish` is used, the orchestrator discovers accounts from `CookiesDir` plus any `tiktok_accounts` configured in JSON. If multiple accounts are available and you do not pass `--tiktok-username` or `--account`, it asks you to pick one before upload.
+
+```json
+{
+  "tiktok_accounts": ["brand_account", "personal_account"],
+  "default_tiktok_username": "brand_account"
+}
 ```
 
 To publish through an upload proxy, add `--tiktok-proxy`. The value is forwarded to TiktokAutoUploader's `-p/--proxy` option:
@@ -217,11 +362,13 @@ Use this only when you intentionally want to bypass dedupe:
 ## Useful Files
 
 ```text
-auto_tiktok_orchestrator/cli.py                 CLI entrypoint
+auto_tiktok_orchestrator/cli.py                 CLI entrypoint, one-shot agent, and chat mode
 auto_tiktok_orchestrator/pipeline.py            End-to-end pipeline
 auto_tiktok_orchestrator/moneyprinter_client.py MoneyPrinterTurbo API client
+auto_tiktok_orchestrator/agent_planner.py       Agent video planning and upload questions
+auto_tiktok_orchestrator/llm_provider.py        Direct Claude/OpenAI/Gemini provider adapters
 auto_tiktok_orchestrator/metadata.py            Caption/hashtag LLM helpers
 auto_tiktok_orchestrator/dedupe_store.py        SQLite duplicate prevention
-auto_tiktok_orchestrator/tiktok_cli.py          TikTokAutoUploader CLI adapter
+auto_tiktok_orchestrator/tiktok_cli.py          TikTokAutoUploader CLI adapter and account discovery
 auto_tiktok_orchestrator/config.example.json    Example orchestrator config
 ```

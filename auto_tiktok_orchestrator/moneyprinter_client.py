@@ -10,15 +10,24 @@ from typing import Any
 
 from .config import AppConfig
 
-
 class MoneyPrinterError(RuntimeError):
     pass
-
 
 class MoneyPrinterClient:
     def __init__(self, config: AppConfig):
         self.config = config
         self.base = config.moneyprinter_api_base.rstrip("/")
+
+    def is_server_available(self) -> bool:
+        parsed = urllib.parse.urlparse(self.base)
+        if not parsed.scheme or not parsed.netloc:
+            return False
+        url = f"{parsed.scheme}://{parsed.netloc}/docs"
+        try:
+            with urllib.request.urlopen(url, timeout=5) as resp:
+                return 200 <= int(resp.status) < 500
+        except urllib.error.URLError:
+            return False
 
     def generate_script(self, idea: str, language: str = "", paragraph_number: int = 1) -> str:
         data = self._post(
@@ -55,22 +64,47 @@ class MoneyPrinterClient:
         language: str,
         voice_name: str,
         paragraph_number: int,
+        voice_volume: float | None = None,
+        voice_rate: float | None = None,
+        bgm_type: str | None = None,
+        bgm_file: str | None = None,
+        bgm_volume: float | None = None,
+        subtitle_position: str | None = None,
+        custom_position: float | None = None,
+        font_name: str | None = None,
+        text_fore_color: str | None = None,
+        text_background_color: bool | str | None = None,
+        font_size: int | None = None,
+        stroke_color: str | None = None,
+        stroke_width: float | None = None,
     ) -> str:
-        data = self._post(
-            "/videos",
-            {
-                "video_subject": idea,
-                "video_script": script,
-                "video_terms": terms,
-                "video_aspect": video_aspect,
-                "video_source": video_source,
-                "video_language": language,
-                "voice_name": voice_name,
-                "paragraph_number": paragraph_number,
-                "subtitle_enabled": True,
-                "bgm_type": "random",
-            },
-        )
+        payload: dict[str, Any] = {
+            "video_subject": idea,
+            "video_script": script,
+            "video_terms": terms,
+            "video_aspect": video_aspect,
+            "video_source": video_source,
+            "video_language": language,
+            "voice_name": voice_name,
+            "paragraph_number": paragraph_number,
+            "subtitle_enabled": True,
+            "voice_volume": self.config.default_voice_volume if voice_volume is None else voice_volume,
+            "voice_rate": self.config.default_voice_rate if voice_rate is None else voice_rate,
+            "bgm_type": bgm_type or self.config.default_bgm_type,
+            "bgm_file": self.config.default_bgm_file if bgm_file is None else bgm_file,
+            "bgm_volume": self.config.default_bgm_volume if bgm_volume is None else bgm_volume,
+            "subtitle_position": subtitle_position or self.config.default_subtitle_position,
+            "custom_position": self.config.default_custom_position if custom_position is None else custom_position,
+            "text_fore_color": text_fore_color or self.config.default_text_fore_color,
+            "text_background_color": self.config.default_text_background_color if text_background_color is None else text_background_color,
+            "font_size": self.config.default_font_size if font_size is None else font_size,
+            "stroke_color": stroke_color or self.config.default_stroke_color,
+            "stroke_width": self.config.default_stroke_width if stroke_width is None else stroke_width,
+        }
+        selected_font = font_name if font_name is not None else self.config.default_font_name
+        if selected_font:
+            payload["font_name"] = selected_font
+        data = self._post("/videos", payload)
         task_id = data.get("task_id")
         if not task_id:
             raise MoneyPrinterError(f"MoneyPrinterTurbo did not return task_id: {data}")

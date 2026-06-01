@@ -1,6 +1,7 @@
 # Orchestrator runtime state
 auto_tiktok_orchestrator/state/*.db
 auto_tiktok_orchestrator/state/*.db-*
+auto_tiktok_orchestrator/state/*.log
 
 # Python
 __pycache__/
