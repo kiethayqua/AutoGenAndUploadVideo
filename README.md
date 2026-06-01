@@ -185,24 +185,24 @@ PYTHONPATH=. python3 -m auto_tiktok_orchestrator.cli generate \
   --tiktok-proxy "http://host:port"
 ```
 
-## Best US Posting Times From Vietnam
+## Best Turkey Posting Times From UTC+7
 
-Vietnam is `UTC+7`. For a US-focused TikTok audience, start with these Vietnam-time posting windows:
+If you are scheduling from a `UTC+7` timezone for a Turkey-focused TikTok audience, Turkey is 4 hours behind at `UTC+3`. Start with these `UTC+7` posting windows:
 
-| Vietnam Time | US Audience Window | Notes |
+| UTC+7 Time | Turkey Audience Window | Notes |
 | --- | --- | --- |
-| `5:00 AM - 9:00 AM` | US East evening, US West afternoon/evening | Strong primary window |
-| `8:00 AM - 12:00 PM` | US West evening | Good for West Coast reach |
-| `10:00 PM - 1:00 AM` | US lunch / early afternoon | Useful secondary test window |
+| `11:00 AM - 1:00 PM` | Turkey morning, `7:00 AM - 9:00 AM` | Good commute / early-day window |
+| `4:00 PM - 6:00 PM` | Turkey midday, `12:00 PM - 2:00 PM` | Useful lunch-break test window |
+| `11:00 PM - 3:00 AM` | Turkey evening, `7:00 PM - 11:00 PM` | Strong primary window |
 
 Recommended starting schedule:
 
 ```text
-2 posts/day: 6:30 AM and 10:00 AM Vietnam time
-3 posts/day: 6:30 AM, 10:00 AM, and 11:30 PM Vietnam time
+2 posts/day: 12:00 PM and 12:30 AM UTC+7
+3 posts/day: 12:00 PM, 5:00 PM, and 12:30 AM UTC+7
 ```
 
-Track results for at least 2 weeks, then keep the slots with the highest US viewer percentage, engagement, and app conversions.
+Track results for at least 2 weeks, then keep the slots with the highest Turkey viewer percentage, engagement, and app conversions.
 
 ## Duplicate Prevention
 
