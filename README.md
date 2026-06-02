@@ -335,6 +335,27 @@ PYTHONPATH=. python3 -m auto_tiktok_orchestrator.cli generate \
   --tiktok-proxy "http://host:port"
 ```
 
+## Best Saudi Arabia Posting Times From UTC+7
+
+If you are scheduling from a `UTC+7` timezone for a Saudi Arabia-focused TikTok audience, Saudi Arabia uses Arabia Standard Time (`UTC+3`), so it is 4 hours behind `UTC+7`. Start with these `UTC+7` posting windows:
+
+| UTC+7 Time | Saudi Arabia Audience Window | Notes |
+| --- | --- | --- |
+| `12:00 PM - 2:00 PM` | Saudi morning, `8:00 AM - 10:00 AM` | Good commute / early scroll window |
+| `4:00 PM - 6:00 PM` | Saudi midday, `12:00 PM - 2:00 PM` | Useful lunch-break test window |
+| `11:00 PM - 3:00 AM` | Saudi evening, `7:00 PM - 11:00 PM` | Strong primary window after work/school |
+| `3:00 AM - 5:00 AM` | Saudi late night, `11:00 PM - 1:00 AM` | Optional test slot for late-night scrollers |
+
+Recommended starting schedule:
+
+```text
+2 posts/day: 1:00 PM and 12:30 AM UTC+7
+3 posts/day: 1:00 PM, 5:00 PM, and 12:30 AM UTC+7
+4 posts/day test: 1:00 PM, 5:00 PM, 12:30 AM, and 4:00 AM UTC+7
+```
+
+For Saudi Arabia, prioritize evening tests from Sunday through Thursday and include Friday/Saturday late-evening slots. Track results for at least 2 weeks, then keep the slots with the highest Saudi viewer percentage, engagement, completion rate, and app conversions.
+
 ## Best Turkey Posting Times From UTC+7
 
 If you are scheduling from a `UTC+7` timezone for a Turkey-focused TikTok audience, Turkey is 4 hours behind at `UTC+3`. Start with these `UTC+7` posting windows:
