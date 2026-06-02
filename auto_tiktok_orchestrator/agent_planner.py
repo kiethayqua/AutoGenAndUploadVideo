@@ -29,6 +29,8 @@ class VideoPlan:
     font_size: int
     stroke_color: str
     stroke_width: float
+    intro_video_file: str
+    outro_video_file: str
     tiktok_username: str
     verification_questions: list[str]
     rationale: str = ""
@@ -48,6 +50,8 @@ class VideoPlan:
             "font_size": self.font_size,
             "stroke_color": self.stroke_color,
             "stroke_width": self.stroke_width,
+            "intro_video_file": self.intro_video_file,
+            "outro_video_file": self.outro_video_file,
         }
 
     def to_json(self) -> str:
@@ -83,6 +87,8 @@ class AgentPlanner:
             "font_size": self.config.default_font_size,
             "stroke_color": self.config.default_stroke_color,
             "stroke_width": self.config.default_stroke_width,
+            "intro_video_file": self.config.default_intro_video_file,
+            "outro_video_file": self.config.default_outro_video_file,
         }
         return f"""
 You are an autonomous short-video production agent. Convert the user's prompt into the best execution plan for a TikTok short generated with MoneyPrinterTurbo.
@@ -92,14 +98,16 @@ Requested account, if any: {requested_account or "(none)"}
 Current safe defaults: {json.dumps(defaults, ensure_ascii=False)}
 
 Rules:
-- Pick a concrete, stock-footage-friendly video idea.
+- Pick a concrete, TikTok-policy-safe, stock-footage-friendly video idea.
+- Prefer safe adult workplace/classroom/desk/notebook/phone visuals; avoid minors, body-part closeups, provocative clothing, weapons, violence, blood, drugs, smoking, alcohol, medical, political, shocking, or dangerous visuals.
 - Pick a suitable language and voice_name. Use the default voice if unsure.
 - Pick readable subtitle styling for TikTok mobile video.
 - Pick bgm_type "random" unless a specific local bgm_file from the user's environment is clearly needed.
+- Keep intro_video_file and outro_video_file as the safe defaults unless the user explicitly asks for an intro/outro and names a known file in MoneyPrinterTurbo storage/local_videos.
 - If an available/requested TikTok account is suitable, set tiktok_username to that exact username; otherwise use an empty string.
 - Include 3 short verification questions the user must answer before uploading.
 - Return strict JSON only with exactly these keys:
-{{"idea":"...","video_language":"...","voice_name":"...","voice_volume":1.0,"voice_rate":1.0,"bgm_type":"random","bgm_file":"","bgm_volume":0.2,"subtitle_position":"bottom","custom_position":70.0,"font_name":"","text_fore_color":"#FFFFFF","text_background_color":true,"font_size":60,"stroke_color":"#000000","stroke_width":1.5,"tiktok_username":"","verification_questions":["..."],"rationale":"..."}}
+{{"idea":"...","video_language":"...","voice_name":"...","voice_volume":1.0,"voice_rate":1.0,"bgm_type":"random","bgm_file":"","bgm_volume":0.2,"subtitle_position":"bottom","custom_position":70.0,"font_name":"","text_fore_color":"#FFFFFF","text_background_color":true,"font_size":60,"stroke_color":"#000000","stroke_width":1.5,"intro_video_file":"","outro_video_file":"","tiktok_username":"","verification_questions":["..."],"rationale":"..."}}
 """.strip()
 
     def _coerce_plan(
@@ -135,6 +143,8 @@ Rules:
             font_size=clamp_int(data.get("font_size"), self.config.default_font_size, 24, 120),
             stroke_color=str(data.get("stroke_color") or self.config.default_stroke_color).strip(),
             stroke_width=clamp_float(data.get("stroke_width"), self.config.default_stroke_width, 0.0, 8.0),
+            intro_video_file=str(data.get("intro_video_file") or self.config.default_intro_video_file or "").strip(),
+            outro_video_file=str(data.get("outro_video_file") or self.config.default_outro_video_file or "").strip(),
             tiktok_username=username,
             verification_questions=questions,
             rationale=str(data.get("rationale") or "").strip(),
@@ -144,7 +154,7 @@ def default_upload_questions() -> list[str]:
     return [
         "Is this the correct TikTok account?",
         "Are the title, caption, and hashtags ready to publish?",
-        "Have you reviewed the generated video and confirmed it is safe to upload?",
+        "Have you reviewed every generated clip and confirmed there is no inappropriate or policy-risky content?",
     ]
 
 def clamp_float(value: Any, default: float, minimum: float, maximum: float) -> float:

@@ -91,7 +91,7 @@ This will:
 
 ## Agent Mode
 
-Use `agent` mode when you want to give one high-level prompt and let the orchestrator plan the best video settings before generation. The agent can choose a concrete video idea, language, voice, subtitle font settings, background music settings, TikTok account, and upload verification questions.
+Use `agent` mode when you want to give one high-level prompt and let the orchestrator plan the best video settings before generation. The agent can choose a concrete video idea, language, voice, subtitle font settings, background music settings, optional intro/outro videos, TikTok account, and upload verification questions.
 
 ```bash
 PYTHONPATH=. python3 -m auto_tiktok_orchestrator.cli agent \
@@ -118,7 +118,7 @@ You can also enter the same chat mode by running `agent` without `--prompt`:
 PYTHONPATH=. python3 -m auto_tiktok_orchestrator.cli agent
 ```
 
-Inside chat, normal text becomes a new video request:
+Inside chat, video requests create a plan; casual chat will not start generation:
 
 ```text
 auto-tiktok> Create a high-retention English idiom video for office workers
@@ -190,6 +190,7 @@ The agent can override these MoneyPrinterTurbo options when planning a video:
 - `bgm_type`, `bgm_file`, `bgm_volume`
 - `font_name`, `font_size`, `text_fore_color`, `text_background_color`
 - `subtitle_position`, `custom_position`, `stroke_color`, `stroke_width`
+- `intro_video_file`, `outro_video_file` for optional local intro/outro clips
 
 Set safe defaults in your config file when you want the agent to stay close to a known style:
 
@@ -200,9 +201,13 @@ Set safe defaults in your config file when you want the agent to stay close to a
   "default_bgm_type": "random",
   "default_font_size": 60,
   "default_text_fore_color": "#FFFFFF",
-  "default_stroke_color": "#000000"
+  "default_stroke_color": "#000000",
+  "default_intro_video_file": "brand-intro.mp4",
+  "default_outro_video_file": "brand-outro.mp4"
 }
 ```
+
+Intro/outro files must be uploaded to or placed in `MoneyPrinterTurbo/storage/local_videos`; use the file name in config or in an agent prompt. The agent keeps these fields empty unless a default is configured or the prompt explicitly names a local intro/outro file.
 
 ## Daily Unique Generation
 

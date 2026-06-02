@@ -37,14 +37,16 @@ class AppConfig:
     default_bgm_type: str = "random"
     default_bgm_file: str = ""
     default_bgm_volume: float = 0.2
-    default_subtitle_position: str = "bottom"
-    default_custom_position: float = 70.0
+    default_subtitle_position: str = "custom"
+    default_custom_position: float = 50.0
     default_font_name: str = ""
     default_text_fore_color: str = "#FFFFFF"
     default_text_background_color: bool | str = True
     default_font_size: int = 60
     default_stroke_color: str = "#000000"
     default_stroke_width: float = 1.5
+    default_intro_video_file: str = ""
+    default_outro_video_file: str = "tubeshad-outro.mp4"
     tiktok_accounts: tuple[str, ...] = ()
     default_tiktok_username: str = ""
 

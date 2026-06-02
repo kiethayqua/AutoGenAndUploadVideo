@@ -77,6 +77,8 @@ class MoneyPrinterClient:
         font_size: int | None = None,
         stroke_color: str | None = None,
         stroke_width: float | None = None,
+        intro_video_file: str | None = None,
+        outro_video_file: str | None = None,
     ) -> str:
         payload: dict[str, Any] = {
             "video_subject": idea,
@@ -100,6 +102,8 @@ class MoneyPrinterClient:
             "font_size": self.config.default_font_size if font_size is None else font_size,
             "stroke_color": stroke_color or self.config.default_stroke_color,
             "stroke_width": self.config.default_stroke_width if stroke_width is None else stroke_width,
+            "intro_video_file": self.config.default_intro_video_file if intro_video_file is None else intro_video_file,
+            "outro_video_file": self.config.default_outro_video_file if outro_video_file is None else outro_video_file,
         }
         selected_font = font_name if font_name is not None else self.config.default_font_name
         if selected_font:

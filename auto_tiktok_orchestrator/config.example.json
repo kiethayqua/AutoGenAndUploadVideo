@@ -21,14 +21,16 @@
   "default_bgm_type": "random",
   "default_bgm_file": "",
   "default_bgm_volume": 0.2,
-  "default_subtitle_position": "bottom",
-  "default_custom_position": 70.0,
+  "default_subtitle_position": "custom",
+  "default_custom_position": 50,
   "default_font_name": "",
   "default_text_fore_color": "#FFFFFF",
   "default_text_background_color": true,
   "default_font_size": 60,
   "default_stroke_color": "#000000",
   "default_stroke_width": 1.5,
+  "default_intro_video_file": "",
+  "default_outro_video_file": "tubeshad-outro.mp4",
   "tiktok_accounts": [],
   "default_tiktok_username": ""
 }

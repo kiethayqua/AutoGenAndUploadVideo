@@ -11,7 +11,7 @@ class FakeLlm:
         return '{"idea":"teach one English idiom with office footage","video_language":"English","voice_name":"en-US-GuyNeural-Male","voice_rate":1.1,"bgm_type":"random","font_size":72,"tiktok_username":"brand","verification_questions":["Correct account?","Caption ok?","Video reviewed?"]}'
 
 def test_agent_planner_coerces_video_plan():
-    config = AppConfig(default_tiktok_username="brand")
+    config = AppConfig(default_tiktok_username="brand", default_outro_video_file="")
     plan = AgentPlanner(config, FakeLlm()).plan("make an English learning video", available_accounts=["brand"])
 
     assert plan.idea == "teach one English idiom with office footage"
@@ -19,6 +19,8 @@ def test_agent_planner_coerces_video_plan():
     assert plan.font_size == 72
     assert plan.tiktok_username == "brand"
     assert plan.video_options()["bgm_type"] == "random"
+    assert plan.video_options()["intro_video_file"] == ""
+    assert plan.video_options()["outro_video_file"] == ""
     assert plan.verification_questions == ["Correct account?", "Caption ok?", "Video reviewed?"]
 
 def test_moneyprinter_payload_includes_agent_style(monkeypatch):
@@ -44,6 +46,8 @@ def test_moneyprinter_payload_includes_agent_style(monkeypatch):
         bgm_volume=0.3,
         font_name="Arial.ttf",
         font_size=72,
+        intro_video_file="intro.mp4",
+        outro_video_file="outro.mp4",
     )
 
     assert task_id == "task-1"
@@ -52,6 +56,8 @@ def test_moneyprinter_payload_includes_agent_style(monkeypatch):
     assert captured["payload"]["bgm_volume"] == 0.3
     assert captured["payload"]["font_name"] == "Arial.ttf"
     assert captured["payload"]["font_size"] == 72
+    assert captured["payload"]["intro_video_file"] == "intro.mp4"
+    assert captured["payload"]["outro_video_file"] == "outro.mp4"
 
 def test_tiktok_accounts_include_config_and_cookie_files(tmp_path):
     cookies = tmp_path / "CookiesDir"
@@ -108,6 +114,8 @@ class FakePlanner:
             font_size=60,
             stroke_color="#000000",
             stroke_width=1.5,
+            intro_video_file="",
+            outro_video_file="",
             tiktok_username="brand",
             verification_questions=["Review video?"],
             rationale="good fit",
