@@ -62,7 +62,7 @@ def test_tiktok_accounts_include_config_and_cookie_files(tmp_path):
     assert publisher.list_accounts() == ["first", "second"]
 
 from auto_tiktok_orchestrator.agent_planner import VideoPlan
-from auto_tiktok_orchestrator.cli import build_parser, handle_chat_command, run_chat_turn
+from auto_tiktok_orchestrator.cli import build_parser, classify_chat_input, handle_chat_command, run_agent_chat, run_chat_turn
 from auto_tiktok_orchestrator.pipeline import PipelineResult
 
 class FakePublisher:
@@ -73,6 +73,7 @@ class FakePipeline:
     def __init__(self):
         self.config = AppConfig(default_tiktok_username="brand")
         self.publisher = FakePublisher()
+        self.llm = FakeLlm()
         self.calls = []
 
     def generate(self, **kwargs):
@@ -125,6 +126,31 @@ def test_agent_without_prompt_enters_chat_shape():
     assert args.command == "agent"
     assert args.prompt == ""
     assert args.llm_provider == "gemini"
+
+def test_chat_intent_routes_casual_and_video_requests():
+    assert classify_chat_input("hi") == "conversation"
+    assert classify_chat_input("thanks") == "conversation"
+    assert classify_chat_input("make a video about discipline") == "video_request"
+    assert classify_chat_input("Create a high-retention English idiom TikTok") == "video_request"
+
+def test_agent_chat_casual_message_does_not_plan_or_generate():
+    args = build_parser().parse_args(["chat"])
+    pipeline = FakePipeline()
+    outputs = []
+    inputs = iter(["hi", "/exit"])
+
+    result = run_agent_chat(
+        args,
+        AppConfig(),
+        pipeline,
+        input_func=lambda prompt: next(inputs),
+        output=outputs.append,
+    )
+
+    assert result == 0
+    assert pipeline.calls == []
+    assert any("Hi!" in item for item in outputs)
+    assert not any("Planning video" in item for item in outputs)
 
 def test_chat_turn_decline_skips_generation():
     args = build_parser().parse_args(["chat", "--custom-hashtag", "#x"])

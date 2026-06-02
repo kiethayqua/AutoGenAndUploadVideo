@@ -6,7 +6,7 @@ import sys
 import time
 from collections.abc import Callable
 from dataclasses import asdict, replace
-from typing import TextIO
+from typing import Literal, TextIO
 
 from .agent_planner import AgentPlanner
 from .config import AppConfig
@@ -14,6 +14,23 @@ from .pipeline import AutoVideoPipeline, PipelineError, UploadReview
 
 InputFunc = Callable[[str], str]
 OutputFunc = Callable[[str], None]
+ChatIntent = Literal["video_request", "conversation"]
+
+CASUAL_CHAT_MESSAGES = {
+    "hi",
+    "hello",
+    "hey",
+    "yo",
+    "sup",
+    "thanks",
+    "thank you",
+    "ok",
+    "okay",
+    "cool",
+}
+VIDEO_WORDS = {"video", "videos", "tiktok", "short", "shorts", "reel", "reels", "clip", "clips"}
+VIDEO_PHRASES = {"tik tok", "youtube short", "youtube shorts"}
+VIDEO_ACTIONS = {"make", "create", "generate", "produce", "plan", "build", "draft"}
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="auto-tiktok", description="Agent-assisted MoneyPrinterTurbo video generation and TikTok publishing")
@@ -148,10 +165,42 @@ def run_agent_chat(
             return 0
         if command_result == "handled":
             continue
+        if classify_chat_input(line) != "video_request":
+            respond_to_casual_chat(line, output=output)
+            continue
         try:
             run_chat_turn(line, args=args, pipeline=pipeline, planner=planner, input_func=input_func, output=output)
         except Exception as exc:
             output(f"ERROR: {exc}")
+
+def classify_chat_input(line: str) -> ChatIntent:
+    normalized = normalize_chat_text(line)
+    if not normalized:
+        return "conversation"
+    if normalized in CASUAL_CHAT_MESSAGES:
+        return "conversation"
+    words = normalized.split()
+    if has_video_keyword(normalized, words):
+        return "video_request"
+    if len(words) >= 4 and words[0] in VIDEO_ACTIONS:
+        return "video_request"
+    if len(words) >= 5 and words[:2] in (["i", "want"], ["i", "need"]):
+        if any(action in words for action in VIDEO_ACTIONS):
+            return "video_request"
+    return "conversation"
+
+def has_video_keyword(normalized: str, words: list[str]) -> bool:
+    return any(phrase in normalized for phrase in VIDEO_PHRASES) or any(word in VIDEO_WORDS for word in words)
+
+def normalize_chat_text(line: str) -> str:
+    return " ".join(line.strip().lower().strip(".!?,;:\"'()[]{}").split())
+
+def respond_to_casual_chat(line: str, *, output: OutputFunc = print) -> None:
+    normalized = normalize_chat_text(line)
+    if normalized in {"hi", "hello", "hey", "yo", "sup"}:
+        output("Hi! Tell me the TikTok video you want to create, or type /help for commands.")
+        return
+    output("I did not detect a video request. Ask me to create a TikTok/video prompt, or type /help for commands.")
 
 def run_chat_turn(
     prompt: str,
@@ -256,7 +305,7 @@ def print_chat_help(*, output: OutputFunc = print) -> None:
     output("  /publish on|off       Toggle publishing for future turns")
     output("  /hashtags #a #b       Replace custom hashtags for future turns")
     output("  /exit                 Exit chat")
-    output("Any other text becomes a new video request.")
+    output("Video requests create a plan; casual chat will not start generation.")
 
 def ask_yes_no(prompt: str, *, input_func: InputFunc = input, output: OutputFunc = print) -> bool:
     while True:
